@@ -1,2 +1,3 @@
+# Ignore Node.js modules and VS Code settings
 node_modules
 .vscode

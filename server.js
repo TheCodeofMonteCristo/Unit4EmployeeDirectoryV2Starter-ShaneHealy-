@@ -1,32 +1,26 @@
+// Import the required modules
 const express = require("express");
 const app = express();
 const PORT = 3000;
 
-app.get("/", (req, res) => {
-  res.send("Hello employees!");
+app.use(express.json()); // Middleware to parse JSON request bodies
+
+// Set up the employee routes
+app.use('/employees', require('./api/employees'));
+
+// 404 error handling middleware
+app.use((req, res, next) => {
+  next({ status: 404, message: 'Endpoint not found.' }); // Pass a 404 error to the next middleware
 });
 
-const employees = require("./employees");
-
-app.get("/employees", (req, res) => {
-  res.json(employees);
+// General error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err); // Log the error
+  res.status(err.status ?? 500); // Set the response status code
+  res.json(err.message ?? 'Sorry, something broke :('); // Respond with error message
 });
 
-app.get("/employees/random", (req, res) => {
-  const i = Math.floor(Math.random() * employees.length);
-  res.json(employees[i]);
-});
-
-app.get("/employees/:id", (req, res) => {
-  const { id } = req.params;
-  const employee = employees.find((e) => e.id === +id);
-  if (employee) {
-    res.json(employee);
-  } else {
-    res.status(404).send(`There is no employee with id ${id}.`);
-  }
-});
-
+// Start the server
 app.listen(PORT, () => {
-  `Listening on port ${PORT}...`;
+  console.log(`Listening on port ${PORT}...`); // Log the server's status
 });
